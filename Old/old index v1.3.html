@@ -253,45 +253,35 @@ let state = {
 function isConfigured() {
   return CONFIG.token !== 'PASTE_TOKEN_HERE' && CONFIG.baseId !== 'PASTE_BASE_ID_HERE' && CONFIG.token.length > 10 && CONFIG.baseId.length > 5;
 }
-function atHeaders() {
-  return { 'Authorization': 'Bearer ' + CONFIG.token, 'Content-Type': 'application/json' };
-}
-function atBase() {
-  return 'https://api.airtable.com/v0/' + CONFIG.baseId + '/';
+async function atFetch(path, opts) {
+  opts = opts || {};
+  // Encode only the table name segment, preserve record IDs and query strings
+  var qIdx = path.indexOf('?');
+  var qs = qIdx >= 0 ? path.slice(qIdx) : '';
+  var pathOnly = qIdx >= 0 ? path.slice(0, qIdx) : path;
+  var segments = pathOnly.split('/');
+  segments[0] = encodeURIComponent(segments[0]);
+  var url = 'https://api.airtable.com/v0/' + CONFIG.baseId + '/' + segments.join('/') + qs;
+  var res = await fetch(url, Object.assign({ headers: { 'Authorization': 'Bearer ' + CONFIG.token, 'Content-Type': 'application/json' } }, opts));
+  if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error && e.error.message) || 'HTTP ' + res.status); }
+  return res.json();
 }
 async function atFetchAll(table) {
   var records = [], offset = null;
-  var tbl = encodeURIComponent(CONFIG.tables[table]);
   do {
-    var url = atBase() + tbl + '?pageSize=100' + (offset ? '&offset=' + offset : '');
-    var res = await fetch(url, { headers: atHeaders() });
-    if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error&&e.error.message)||'HTTP '+res.status); }
-    var data = await res.json();
+    var url = CONFIG.tables[table] + '?pageSize=100' + (offset ? '&offset=' + offset : '');
+    var data = await atFetch(url);
     records = records.concat(data.records);
     offset = data.offset || null;
   } while (offset);
   return records;
 }
 async function atCreate(table, fields) {
-  var url = atBase() + encodeURIComponent(CONFIG.tables[table]);
-  var res = await fetch(url, { method:'POST', headers:atHeaders(), body:JSON.stringify({records:[{fields:fields}]}) });
-  if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error&&e.error.message)||'HTTP '+res.status); }
-  var data = await res.json();
+  var data = await atFetch(CONFIG.tables[table], { method:'POST', body:JSON.stringify({records:[{fields:fields}]}) });
   return data.records[0];
 }
 async function atUpdate(table, id, fields) {
-  var url = atBase() + encodeURIComponent(CONFIG.tables[table]) + '/' + id;
-  var res = await fetch(url, { method:'PATCH', headers:atHeaders(), body:JSON.stringify({fields:fields}) });
-  if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error&&e.error.message)||'HTTP '+res.status); }
-  return res.json();
-}
-async function atFetch(path, opts) {
-  // legacy - only used by testConnection
-  opts = opts || {};
-  var url = atBase() + encodeURIComponent(path.split('?')[0]) + (path.indexOf('?')>=0 ? path.slice(path.indexOf('?')) : '');
-  var res = await fetch(url, Object.assign({ headers: atHeaders() }, opts));
-  if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error&&e.error.message)||'HTTP '+res.status); }
-  return res.json();
+  return atFetch(CONFIG.tables[table] + '/' + id, { method:'PATCH', body:JSON.stringify({fields:fields}) });
 }
 
 async function syncInventory() {
