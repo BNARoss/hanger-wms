@@ -255,13 +255,9 @@ function isConfigured() {
 }
 async function atFetch(path, opts) {
   opts = opts || {};
-  // Encode only the table name segment, preserve record IDs and query strings
-  var qIdx = path.indexOf('?');
-  var qs = qIdx >= 0 ? path.slice(qIdx) : '';
-  var pathOnly = qIdx >= 0 ? path.slice(0, qIdx) : path;
-  var segments = pathOnly.split('/');
-  segments[0] = encodeURIComponent(segments[0]);
-  var url = 'https://api.airtable.com/v0/' + CONFIG.baseId + '/' + segments.join('/') + qs;
+  // Only encode the table name, not the query string
+  var pathParts = path.split('?');
+  var url = 'https://api.airtable.com/v0/' + CONFIG.baseId + '/' + encodeURIComponent(pathParts[0]) + (pathParts[1] ? '?' + pathParts[1] : '');
   var res = await fetch(url, Object.assign({ headers: { 'Authorization': 'Bearer ' + CONFIG.token, 'Content-Type': 'application/json' } }, opts));
   if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error && e.error.message) || 'HTTP ' + res.status); }
   return res.json();
