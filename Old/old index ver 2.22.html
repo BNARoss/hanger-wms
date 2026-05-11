@@ -558,7 +558,7 @@ function renderPage() {
 function renderSetupBanner() {
   return '<div style="max-width:640px;margin:0 auto;padding-top:20px">' +
     '<div style="background:rgba(232,184,75,0.06);border:2px solid rgba(232,184,75,0.3);border-radius:14px;padding:28px;margin-bottom:20px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:8px">\u2699 AIRTABLE NOT CONFIGURED</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:8px">\u2699 AIRTABLE NOT CONFIGURED</div>' +
       '<div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px">Paste your <strong style="color:var(--text)">Base ID</strong> in Settings to activate cloud sync. Your token is already embedded.</div>' +
       '<div class="btn btn-primary" onclick="setPage(\'settings\')">'+I.settings+' Go to Settings</div>' +
     '</div>' +
@@ -568,7 +568,7 @@ function renderSetupBanner() {
         '<li>Go to <strong style="color:var(--text)">airtable.com</strong> &rarr; New Base &rarr; name it <strong style="color:var(--accent)">HANGER WMS</strong></li>' +
         '<li>Import the provided <strong style="color:var(--text)">hanger_inventory_import.csv</strong> into a table named <strong style="color:var(--accent)">Inventory</strong></li>' +
         '<li>Create a second empty table named <strong style="color:var(--accent)">Scan Log</strong></li>' +
-        '<li>Copy your Base ID from the URL: <span style="font-family:DM Mono,monospace;color:var(--blue)">airtable.com/<strong>appXXXXXXXX</strong>/tbl</span></li>' +
+        '<li>Copy your Base ID from the URL: <span style="font-family:\'DM Mono\',monospace;color:var(--blue)">airtable.com/<strong>appXXXXXXXX</strong>/tbl</span></li>' +
         '<li>Paste Base ID into <strong style="color:var(--text)">Settings</strong> and click Save &amp; Connect</li>' +
       '</ol>' +
     '</div>' +
@@ -600,7 +600,7 @@ function renderSettings() {
   ].map(function(r){ return '<tr><td class="mono" style="color:var(--accent)">'+r[0]+'</td><td class="c-gray text-sm">'+r[1]+'</td><td class="c-gray text-sm">'+r[2]+'</td></tr>'; }).join('');
   return '<div style="max-width:640px">' +
     '<div style="background:var(--surface);border:1px solid rgba(232,184,75,0.3);border-radius:14px;padding:24px;margin-bottom:16px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);margin-bottom:16px">'+I.cloud+' AIRTABLE CONNECTION</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);margin-bottom:16px">'+I.cloud+' AIRTABLE CONNECTION</div>' +
       '<div style="background:'+statusStyle+';border:1px solid '+statusBorder+';border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px">Status: '+statusText+'</div>' +
       '<div class="field-group"><div class="field-label">Your Name</div><input class="field-input" type="text" id="cfgUsername" value="'+CONFIG.username+'" placeholder="e.g. John Smith"><div style="font-size:11px;color:var(--text3);margin-top:4px">Appears in scan log — identifies who made each change</div></div>' +
       '<div class="field-group"><div class="field-label">Personal Access Token</div><input class="field-input" type="text" id="cfgToken" value="'+CONFIG.token+'" placeholder="patXXX\u2026"></div>' +
@@ -614,12 +614,12 @@ function renderSettings() {
       '</div>' +
     '</div>' +
     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:14px">INVENTORY TABLE SCHEMA</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:14px">INVENTORY TABLE SCHEMA</div>' +
       '<div class="table-wrap"><table><thead><tr><th>Field Name</th><th>Type</th><th>Notes</th></tr></thead><tbody>' + schemaRows + '</tbody></table></div>' +
       '<div style="font-size:12px;color:var(--text2);margin-top:12px"><strong style="color:var(--text)">Scan Log</strong> needs: barcode, description, action, delta, qty_after, warehouse, assigned_job, scanned_at, role, scanned_by</div>' +
     '</div>' +
     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:12px">EXPORT</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:12px">EXPORT</div>' +
       '<div style="display:flex;gap:10px">' +
         '<div class="btn btn-ghost" onclick="exportInventoryCSV()">Export Inventory CSV</div>' +
         '<div class="btn btn-ghost" onclick="exportScanLog()">Export Scan Log</div>' +
@@ -721,7 +721,7 @@ function renderScanPage() {
         '</div>' +
         '<div class="btn btn-primary" onclick="commitCount()">\u2713 Commit Count (' + entries.length + ' items)</div>';
     body = '<div style="background:rgba(232,184,75,0.08);border:2px solid var(--accent);border-radius:12px;padding:18px;margin-bottom:16px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);margin-bottom:8px">COUNT MODE</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);margin-bottom:8px">COUNT MODE</div>' +
       '<div style="font-size:13px;color:var(--text2);margin-bottom:14px">Each scan = +1. Commit when done to push all counts to Airtable.</div>' +
       '<div class="scan-input-wrap"><div class="scan-icon">'+I.scan+'</div><input class="scan-input" id="scanInputPage" placeholder="Scan barcode\u2026" autocomplete="off"></div>' +
       bufHtml + '</div>';
@@ -736,7 +736,7 @@ function renderScanPage() {
         '<div class="scan-result-label">Item Found</div>' +
         '<div class="scan-result-desc">'+r.description+'</div>' +
         '<div class="scan-result-meta">'+r.barcode+' \u00b7 '+r.category+' \u00b7 '+r.vendor+'</div>' +
-        '<div style="margin-top:10px;display:flex;align-items:center;gap:12px"><div style="font-size:13px;color:var(--text2)">Qty:</div><div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:'+qc+'">'+r.qty+'</div><div style="font-size:12px;color:var(--text2)">Min: '+r.min_qty+' / Max: '+r.max_qty+'</div></div>' +
+        '<div style="margin-top:10px;display:flex;align-items:center;gap:12px"><div style="font-size:13px;color:var(--text2)">Qty:</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:'+qc+'">'+r.qty+'</div><div style="font-size:12px;color:var(--text2)">Min: '+r.min_qty+' / Max: '+r.max_qty+'</div></div>' +
         '</div>' +
         '<div class="scan-actions">' + inBtns + outBtns + '</div>' +
         '<div style="margin-top:12px"><div class="btn btn-ghost" style="font-size:11px" onclick="openDetail(\''+r.barcode+'\')">View Detail</div></div>';
@@ -744,7 +744,7 @@ function renderScanPage() {
       resultHtml = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:14px;color:var(--red);font-size:13px;text-align:center">\u26a0 Barcode not found</div>';
     }
     body = '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:16px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:6px;color:var(--accent)">SCAN ITEM</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:6px;color:var(--accent)">SCAN ITEM</div>' +
       '<div style="font-size:12.5px;color:var(--text2);margin-bottom:16px">Scan barcode or type manually, press Enter.</div>' +
       '<div class="scan-input-wrap" style="margin-bottom:16px"><div class="scan-icon">'+I.scan+'</div><input class="scan-input" id="scanInputPage" placeholder="Scan or type barcode\u2026" autocomplete="off"></div>' +
       resultHtml + '</div>';
@@ -1257,7 +1257,7 @@ function renderPicklistBuilder() {
   return '<div style="max-width:760px">' +
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
       '<div class="btn btn-ghost" onclick="state.buildingPicklist=null;render()">\u2190 Back</div>' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;letter-spacing:2px">'+(pl.picklist_id||'NEW PICKLIST')+'</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px">'+(pl.picklist_id||'NEW PICKLIST')+'</div>' +
     '</div>' +
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
@@ -1286,7 +1286,7 @@ function renderPicklistBuilder() {
     '</div>' +
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:16px">' +
-      '<div style="padding:14px 16px;border-bottom:1px solid var(--border);font-family:Bebas Neue,sans-serif;font-size:15px;letter-spacing:1px">ITEMS ('+items.length+')</div>' +
+      '<div style="padding:14px 16px;border-bottom:1px solid var(--border);font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px">ITEMS ('+items.length+')</div>' +
       '<div class="table-scroll"><table><thead><tr><th>Barcode</th><th>Description</th><th style="text-align:center">Qty</th><th></th></tr></thead>' +
       '<tbody>'+itemRows+'</tbody></table></div>' +
     '</div>' +
@@ -1324,7 +1324,7 @@ function renderPicklistDetail(plId) {
   return '<div style="max-width:760px">' +
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
       '<div class="btn btn-ghost" onclick="state.page=\'picklists\';render()">\u2190 Back</div>' +
-      '<div><div style="font-family:Bebas Neue,sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent)">'+pl.picklist_id+'</div>' +
+      '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent)">'+pl.picklist_id+'</div>' +
       '<div style="font-size:13px;color:var(--text2)">'+pl.job_name+' \u00b7 '+pl.warehouse+'</div></div>' +
       '<div style="margin-left:auto">'+plStatusBadge(pl.status)+'</div>' +
     '</div>' +
@@ -1370,11 +1370,11 @@ function renderBarcodes() {
   return '<div style="display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start">' +
     '<div>' +
       '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
-        '<div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:16px;color:var(--accent)">GENERATE BARCODE</div>' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:16px;color:var(--accent)">GENERATE BARCODE</div>' +
         '<div class="field-group"><div class="field-label">Prefix (e.g. CS-SHLF)</div>' +
           '<input class="field-input" id="bcPrefixInput" placeholder="CS-SHLF" value="'+state.bcPrefix+'" onblur="state.bcPrefix=this.value.toUpperCase()" onkeydown="handleEnterKey(event,function(){state.bcPrefix=this.value.toUpperCase();render()})"></div>' +
         (suggestions.length ? '<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">' +
-          suggestions.map(function(s){ return '<div class="filter-chip" onclick="document.getElementById(\'bcManual\').value=\''+s+'\';state.bcBarcode=\''+s+'\';" style="font-family:DM Mono,monospace;font-size:11px">'+s+'</div>'; }).join('') +
+          suggestions.map(function(s){ return '<div class="filter-chip" onclick="document.getElementById(\'bcManual\').value=\''+s+'\';state.bcBarcode=\''+s+'\';" style="font-family:\'DM Mono\',monospace;font-size:11px">'+s+'</div>'; }).join('') +
         '</div>' : '') +
         '<div class="field-group"><div class="field-label">Barcode (manual or pick suggestion)</div>' +
           '<input class="field-input mono" id="bcManual" placeholder="CS-SHLF-001" oninput="state.bcBarcode=this.value" value="'+(state.bcBarcode||'')+'"></div>' +
@@ -1618,11 +1618,6 @@ bindMain = function() {
         sb.classList.remove('mobile-open');
       }
     });
-  // Handle bottom nav clicks via event delegation
-  document.addEventListener('click', function(e) {
-    var el = e.target.closest('[data-wpage]');
-    if (el) { var page = el.getAttribute('data-wnavpage'); if(page) setPage(page); }
-  });
   } else {
     if (tog && sb) tog.onclick = function() { state.sidebarCollapsed=!state.sidebarCollapsed; render(); };
   }
@@ -1645,7 +1640,7 @@ function renderMobileNav() {
   ];
   nav.innerHTML = items.map(function(it) {
     var active = state.page === it.page;
-    return '<div data-wpage="true" data-wnavpage="'+it.page+'" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer;color:'+(active?'var(--accent)':'var(--text2)')+';">' +
+    return '<div onclick="setPage(''+it.page+'')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer;color:'+(active?'var(--accent)':'var(--text2)')+';">' +
       '<span style="font-size:18px">'+it.icon+'</span>' +
       '<span style="font-size:10px;font-weight:600">'+it.label+'</span>' +
     '</div>';
@@ -1704,7 +1699,7 @@ function renderWorkerHome() {
   ];
   return '<div style="min-height:100vh;background:var(--bg);padding:16px;padding-bottom:80px">' +
     '<div style="text-align:center;margin-bottom:24px;padding-top:8px">' +
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;letter-spacing:4px;color:var(--accent)">HANGER</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;letter-spacing:4px;color:var(--accent)">HANGER</div>' +
       '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + (CONFIG.username||state.role) + ' &middot; ' + state.warehouse + '</div>' +
       '<div style="margin-top:8px">' + renderSyncPill() + '</div>' +
     '</div>' +
@@ -1713,13 +1708,13 @@ function renderWorkerHome() {
         return '<div onclick="wState.mode=\''+b.mode+'\';wState.foundItem=null;wState.scanInput=\'\';render()" ' +
           'style="background:var(--surface);border:2px solid '+b.color+';border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;active:background:var(--surface2)">' +
           '<div style="font-size:36px;margin-bottom:8px">'+b.icon+'</div>' +
-          '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;color:'+b.color+'">'+b.label+'</div>' +
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:2px;color:'+b.color+'">'+b.label+'</div>' +
           '<div style="font-size:11px;color:var(--text2);margin-top:4px">'+b.desc+'</div>' +
         '</div>';
       }).join('') +
     '</div>' +
     '<div style="text-align:center;margin-top:20px">' +
-      '<div class="btn btn-ghost" style="font-size:11px" onclick="workerGoSettings()">&#9881; Settings &amp; Sync</div>' +
+      '<div class="btn btn-ghost" style="font-size:11px" onclick="state.page=\'settings\';render()">&#9881; Settings</div>' +
       '<div class="btn btn-ghost" style="font-size:11px;margin-left:8px" onclick="state.loggedIn=false;render()">&#8594; Log Out</div>' +
     '</div>' +
   '</div>';
@@ -1728,7 +1723,7 @@ function renderWorkerHome() {
 function workerScanBar(placeholder, onenter) {
   return '<div style="position:relative;margin-bottom:16px">' +
     '<input id="wScanInput" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" ' +
-    'style="width:100%;background:var(--surface2);border:2px solid var(--accent);border-radius:10px;padding:14px 16px 14px 44px;color:var(--text);font-family:DM Mono,monospace;font-size:16px;outline:none;box-sizing:border-box;" ' +
+    'style="width:100%;background:var(--surface2);border:2px solid var(--accent);border-radius:10px;padding:14px 16px 14px 44px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:16px;outline:none;box-sizing:border-box;" ' +
     'placeholder="'+placeholder+'" value="'+(wState.scanInput||'')+'" ' +
     'oninput="wState.scanInput=this.value" onkeydown="if(event.key===\'Enter\'){'+onenter+'}">' +
     '<span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px">&#9635;</span>' +
@@ -1740,7 +1735,7 @@ function workerHeader(title, color) {
   return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
     '<div onclick="wState.mode=null;wState.foundItem=null;wState.scanInput=\'\';render()" ' +
     'style="width:36px;height:36px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0">&#8592;</div>' +
-    '<div style="font-family:Bebas Neue,sans-serif;font-size:24px;letter-spacing:3px;color:'+color+'">'+title+'</div>' +
+    '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;letter-spacing:3px;color:'+color+'">'+title+'</div>' +
   '</div>';
 }
 
@@ -1749,8 +1744,8 @@ function renderFoundItem(item, showQty) {
   var qc = item.qty===0?'var(--red)':item.qty<item.min_qty?'var(--accent)':'var(--green)';
   return '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-bottom:16px">' +
     '<div style="font-size:13px;font-weight:700;margin-bottom:4px">'+item.description+'</div>' +
-    '<div style="font-family:DM Mono,monospace;font-size:12px;color:var(--text2);margin-bottom:'+(showQty?'12px':'0')+'">'+item.barcode+' &middot; '+item.vendor+'</div>' +
-    (showQty ? '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text2)">On Hand:</span><span style="font-family:Bebas Neue,sans-serif;font-size:28px;color:'+qc+'">'+item.qty+'</span><span style="font-size:12px;color:var(--text2)">min '+item.min_qty+'</span></div>' : '') +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text2);margin-bottom:'+(showQty?'12px':'0')+'">'+item.barcode+' &middot; '+item.vendor+'</div>' +
+    (showQty ? '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text2)">On Hand:</span><span style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:'+qc+'">'+item.qty+'</span><span style="font-size:12px;color:var(--text2)">min '+item.min_qty+'</span></div>' : '') +
   '</div>';
 }
 
@@ -1766,7 +1761,7 @@ function renderWorkerScan(dir) {
     (item ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
       [1,2,5,10].map(function(n){
         return '<div onclick="workerAdjQty(\''+dir+'\','+n+')" style="background:'+(dir==='in'?'rgba(34,197,94,0.12)':'rgba(249,115,22,0.12)')+';border:2px solid '+color+';border-radius:12px;padding:18px;text-align:center;cursor:pointer">' +
-          '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:'+color+'">'+(dir==='in'?'+':'-')+n+'</div>' +
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:'+color+'">'+(dir==='in'?'+':'-')+n+'</div>' +
           '<div style="font-size:11px;color:var(--text2)">'+(dir==='in'?'ADD':'REMOVE')+' '+n+'</div>' +
         '</div>';
       }).join('') +
@@ -1790,7 +1785,7 @@ function renderWorkerOut() {
       '<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Active Picklist</div>' +
       (picklists.length===0 ?
         '<div style="color:var(--text2);font-size:13px;padding:12px;background:var(--surface);border-radius:8px">No active picklists — use Job Name mode</div>' :
-        '<select onchange="wState.jobName=this.value" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:DM Sans,sans-serif;font-size:14px;padding:12px;border-radius:8px;outline:none">' +
+        '<select onchange="wState.jobName=this.value" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:12px;border-radius:8px;outline:none">' +
         '<option value="">Select picklist\u2026</option>' +
         picklists.map(function(p){ return '<option value="'+p.picklist_id+'" '+(wState.jobName===p.picklist_id?'selected':'')+'>'+p.picklist_id+' \u2014 '+p.job_name+'</option>'; }).join('') +
         '</select>') +
@@ -1798,7 +1793,7 @@ function renderWorkerOut() {
       :
       '<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Job Name / Number</div>' +
       '<input type="text" value="'+(wState.jobName||'')+'" placeholder="Enter job name or number\u2026" ' +
-      'style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:DM Sans,sans-serif;font-size:14px;padding:12px;border-radius:8px;outline:none;box-sizing:border-box" ' +
+      'style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:14px;padding:12px;border-radius:8px;outline:none;box-sizing:border-box" ' +
       'onblur="wState.jobName=this.value" onkeydown="if(event.key===\'Enter\'){wState.jobName=this.value;render()}"></div>'
     ) +
     // Scan
@@ -1808,7 +1803,7 @@ function renderWorkerOut() {
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
       [1,2,5,10].map(function(n){
         return '<div onclick="workerAdjQty(\'out\','+n+')" style="background:rgba(249,115,22,0.12);border:2px solid var(--orange);border-radius:12px;padding:18px;text-align:center;cursor:pointer">' +
-          '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--orange)">-'+n+'</div>' +
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:var(--orange)">-'+n+'</div>' +
           '<div style="font-size:11px;color:var(--text2)">REMOVE '+n+'</div>' +
         '</div>';
       }).join('') + '</div>' +
@@ -1831,8 +1826,8 @@ function renderWorkerCount() {
         var item = state.inventory.find(function(i){return i.barcode===e[0];});
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)">' +
           '<div><div style="font-size:13px;font-weight:600">'+(item?item.description:e[0])+'</div>' +
-          '<div style="font-size:11px;color:var(--text2);font-family:DM Mono,monospace">'+e[0]+'</div></div>' +
-          '<div style="font-family:Bebas Neue,sans-serif;font-size:24px;color:var(--accent)">'+e[1]+'</div>' +
+          '<div style="font-size:11px;color:var(--text2);font-family:\'DM Mono\',monospace">'+e[0]+'</div></div>' +
+          '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:var(--accent)">'+e[1]+'</div>' +
         '</div>';
       }).join('') + '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
@@ -1853,10 +1848,10 @@ function renderWorkerLookup() {
     (item ?
       '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:12px">' +
         '<div style="font-size:15px;font-weight:700;margin-bottom:4px">'+item.description+'</div>' +
-        '<div style="font-family:DM Mono,monospace;font-size:11px;color:var(--text2);margin-bottom:16px">'+item.barcode+'</div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--text2);margin-bottom:16px">'+item.barcode+'</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
-          '<div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">ON HAND</div><div style="font-family:Bebas Neue,sans-serif;font-size:32px;color:'+(item.qty===0?'var(--red)':item.qty<item.min_qty?'var(--accent)':'var(--green)')+'">'+item.qty+'</div></div>' +
-          '<div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">MIN / MAX</div><div style="font-family:Bebas Neue,sans-serif;font-size:24px;color:var(--text)">'+item.min_qty+'/'+item.max_qty+'</div></div>' +
+          '<div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">ON HAND</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:'+(item.qty===0?'var(--red)':item.qty<item.min_qty?'var(--accent)':'var(--green)')+'">'+item.qty+'</div></div>' +
+          '<div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">MIN / MAX</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:var(--text)">'+item.min_qty+'/'+item.max_qty+'</div></div>' +
         '</div>' +
         '<div style="font-size:12px;color:var(--text2);line-height:1.8">' +
           '<div><span style="color:var(--text3)">Vendor:</span> '+item.vendor+'</div>' +
@@ -1882,7 +1877,7 @@ function renderWorkerReceive() {
       '<div style="padding:10px 14px;background:var(--surface2);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px">Received this session</div>' +
       wState.receiveItems.slice().reverse().map(function(r){
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border)">' +
-          '<div><div style="font-size:13px;font-weight:600">'+r.description+'</div><div style="font-size:11px;color:var(--text2);font-family:DM Mono,monospace">'+r.barcode+'</div></div>' +
+          '<div><div style="font-size:13px;font-weight:600">'+r.description+'</div><div style="font-size:11px;color:var(--text2);font-family:\'DM Mono\',monospace">'+r.barcode+'</div></div>' +
           '<span class="badge badge-green">+'+r.delta+'</span>' +
         '</div>';
       }).join('') + '</div>' +
@@ -1893,34 +1888,6 @@ function renderWorkerReceive() {
 }
 
 // ── WORKER ACTIONS ────────────────────────────────────────
-function workerGoSettings() {
-  state.page = 'settings';
-  var app = document.getElementById('app');
-  var wrap = document.createElement('div');
-  wrap.style.cssText = 'padding:16px;min-height:100vh;background:var(--bg)';
-  var back = document.createElement('div');
-  back.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:20px';
-  var backArrow = document.createElement('div');
-  backArrow.innerHTML = '&#8592;';
-  backArrow.style.cssText = 'width:36px;height:36px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0';
-  backArrow.onclick = function(){ state.page='dashboard'; render(); };
-  var title = document.createElement('div');
-  title.textContent = 'SETTINGS';
-  title.style.cssText = 'font-size:22px;font-weight:700;letter-spacing:2px;color:var(--accent)';
-  back.appendChild(backArrow);
-  back.appendChild(title);
-  wrap.appendChild(back);
-  var content = document.createElement('div');
-  content.innerHTML = renderSettings();
-  wrap.appendChild(content);
-  app.innerHTML = '';
-  app.appendChild(wrap);
-}
-
-function bindSettingsInputs() {
-  // nothing needed - settings uses inline onclick handlers
-}
-
 function bindWorkerInputs() {
   // Auto-focus scan input if present
   setTimeout(function(){
