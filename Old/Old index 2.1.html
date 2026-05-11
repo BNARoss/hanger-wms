@@ -1102,7 +1102,7 @@ function exportScanLog() {
 }
 
 // ── INIT ──────────────────────────────────────────────────
-setTimeout(hideSplash, 20000);
+setTimeout(hideSplash, 10000);
 render();
 </script>
 </body>
@@ -1313,7 +1313,6 @@ function renderPicklistDetail(plId) {
       '<tbody>'+rows+'</tbody>' +
     '</table></div></div>' +
     (allPicked ? '<div class="btn btn-primary" style="margin-top:16px;background:var(--green)" onclick="completePicklist(\''+plId+'\')">'+I.check+' Complete Picklist</div>' : '') +
-    '<div class="btn btn-danger" style="margin-top:12px" onclick="cancelPicklist(\''+plId+'\')">&#10005; Cancel Picklist</div>' +
   '</div>';
 }
 
@@ -1449,7 +1448,8 @@ async function savePicklist(status) {
       var it = pl.items[i];
       await atCreate('picklistItems', {
         barcode:      it.barcode,
-        description:  it.description
+        description:  it.description,
+        notes:        pl.picklist_id + ' | ' + pl.job_name
       });
     }
     showToast('Picklist '+pl.picklist_id+' saved', 'success');
@@ -1478,19 +1478,6 @@ async function completePicklist(plId) {
   try {
     await atUpdate('picklists', pl._atId, { status:'Complete' });
     showToast('Picklist '+plId+' completed', 'success');
-    await syncPicklists();
-    state.page = 'picklists';
-    render();
-  } catch(e) { showToast('Update failed: '+e.message, 'error'); }
-}
-
-async function cancelPicklist(plId) {
-  if (!confirm('Cancel picklist '+plId+'? This cannot be undone.')) return;
-  var pl = state.picklists.find(function(p){return p.picklist_id===plId;});
-  if (!pl) return;
-  try {
-    await atUpdate('picklists', pl._atId, { status:'Cancelled' });
-    showToast('Picklist '+plId+' cancelled', 'info');
     await syncPicklists();
     state.page = 'picklists';
     render();
