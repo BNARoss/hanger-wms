@@ -1551,8 +1551,6 @@ function copyBarcode(bc) {
     '.shell{flex-direction:column;height:auto;min-height:100vh;}' +
     '.sidebar{position:fixed;z-index:60;height:100vh;top:0;left:0;transform:translateX(-100%);transition:transform 0.25s;width:260px!important;min-width:260px!important;}' +
     '.sidebar.mobile-open{transform:translateX(0);}' +
-    '.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:59;}' +
-    '.sidebar.mobile-open ~ .sidebar-overlay{display:block;}' +
     '.shell{display:block;}' +
     '.main{width:100vw!important;min-height:100vh;overflow-x:hidden;margin-left:0!important;}' +
     '.topbar{padding:0 12px;gap:8px;height:52px;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,0.3);}' +
@@ -1587,22 +1585,14 @@ bindMain = function() {
   _origBindMain();
   var tog = document.getElementById('toggleSidebar');
   var sb  = document.getElementById('sidebar');
-  if (window.innerWidth <= 768) {
-    // Hide sidebar completely on mobile by default
-    if (sb) sb.classList.remove('mobile-open');
-    if (tog) tog.onclick = function() { if(sb) sb.classList.toggle('mobile-open'); };
-    // Auto-close sidebar when any nav item tapped
+  if (tog && sb && window.innerWidth <= 768) {
+    tog.onclick = function() {
+      sb.classList.toggle('mobile-open');
+    };
+    // close sidebar on nav tap (mobile)
     document.querySelectorAll('[data-page]').forEach(function(el){
       el.addEventListener('click', function(){ if(sb) sb.classList.remove('mobile-open'); });
     });
-    // Tap overlay area to close sidebar
-    document.addEventListener('click', function(e) {
-      if (sb && sb.classList.contains('mobile-open') && !sb.contains(e.target) && e.target !== tog) {
-        sb.classList.remove('mobile-open');
-      }
-    });
-  } else {
-    if (tog && sb) tog.onclick = function() { state.sidebarCollapsed=!state.sidebarCollapsed; render(); };
   }
 };
 
