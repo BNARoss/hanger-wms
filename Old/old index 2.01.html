@@ -3,10 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0c10">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='4' fill='%23e8b84b'/><text y='19' x='2' font-size='18' font-family='sans-serif' font-weight='bold' fill='%230a0c10'>H</text></svg>">
 <title>HANGER WMS &mdash; Airtable Cloud</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -1095,16 +1091,19 @@ async function syncPicklists() {
   if (!isConfigured()) return;
   try {
     var recs = await atFetchAll('picklists');
-    state.picklists = recs.map(function(r){ return Object.assign({_atId:r.id},r.fields); });
-  } catch(e) { console.warn('Picklist sync:',e.message); }
+    state.picklists = recs.map(function(r) {
+      return Object.assign({_atId:r.id}, r.fields);
+    });
+  } catch(e) { showToast('Picklist sync failed: '+e.message,'error'); }
 }
 
-async function syncPicklistItems() {
+async function syncPicklistItems(plId) {
   if (!isConfigured()) return;
   try {
+    // fetch all items then filter client-side (simple, no formula encoding issues)
     var recs = await atFetchAll('picklistItems');
     state.picklistItems = recs.map(function(r){ return Object.assign({_atId:r.id},r.fields); });
-  } catch(e) { console.warn('PicklistItems sync:',e.message); }
+  } catch(e) { showToast('Item sync failed: '+e.message,'error'); }
 }
 
 async function syncBarcodes() {
@@ -1112,7 +1111,7 @@ async function syncBarcodes() {
   try {
     var recs = await atFetchAll('barcodes');
     state.barcodes = recs.map(function(r){ return Object.assign({_atId:r.id},r.fields); });
-  } catch(e) { console.warn('Barcodes sync:',e.message); }
+  } catch(e) { showToast('Barcode sync failed: '+e.message,'error'); }
 }
 
 // ── PICKLIST HELPERS ──────────────────
@@ -1479,7 +1478,12 @@ function copyBarcode(bc) {
 // ── MOBILE PWA META (inject into head) ─
 // Add to manifest via JS since we can't edit head after load
 (function(){
-  // PWA meta now in <head> statically
+  var m = document.createElement('meta');
+  m.name='theme-color'; m.content='#0a0c10';
+  document.head.appendChild(m);
+  var m2 = document.createElement('meta');
+  m2.name='apple-mobile-web-app-capable'; m2.content='yes';
+  document.head.appendChild(m2);
   var m3 = document.createElement('meta');
   m3.name='apple-mobile-web-app-status-bar-style'; m3.content='black-translucent';
   document.head.appendChild(m3);
