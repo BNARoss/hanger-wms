@@ -1256,7 +1256,7 @@ function renderPicklistBuilder() {
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
       '<div class="field-label" style="margin-bottom:8px">Add Items</div>' +
-      '<input class="field-input" id="plItemSearch" placeholder="Search SKU or barcode\u2026" style="margin-bottom:8px" value="'+(pl.itemSearch||'')+'" oninput="state.buildingPicklist.itemSearch=this.value;clearTimeout(window._plst);window._plst=setTimeout(render,300)">' +
+      '<input class="field-input" id="plItemSearch" placeholder="Search SKU or barcode\u2026" style="margin-bottom:8px" value="'+(pl.itemSearch||'')+'" onblur="state.buildingPicklist.itemSearch=this.value" onkeydown="handleEnterKey(event,function(){state.buildingPicklist.itemSearch=this.value;render()})">' +
       (results.length > 0 ? '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px">'+searchResults+'</div>' : '') +
     '</div>' +
 
@@ -1439,13 +1439,9 @@ async function savePicklist(status) {
     for (var i=0; i<pl.items.length; i++) {
       var it = pl.items[i];
       await atCreate('picklistItems', {
-        barcode:      it.barcode,
-        description:  it.description,
-        category:     it.category||'',
-        prefix:       it.barcode.split('-').slice(0,2).join('-'),
-        created_by:   CONFIG.username||state.role,
-        created_at:   now,
-        notes:        pl.picklist_id + ' | ' + pl.job_name
+        picklist_id: pl.picklist_id, barcode: it.barcode,
+        description: it.description, qty_requested: it.qty_requested,
+        qty_picked: 0, status: 'Pending'
       });
     }
     showToast('Picklist '+pl.picklist_id+' saved', 'success');
@@ -1460,7 +1456,8 @@ async function pickItem(plId, itemAtId, qtyRequested) {
   var now = new Date().toISOString().replace('T',' ').slice(0,19);
   try {
     await atUpdate('picklistItems', itemAtId, {
-      notes: 'Picked by ' + (CONFIG.username||state.role) + ' at ' + now
+      qty_picked: qtyRequested, status: 'Picked',
+      picked_by: CONFIG.username||state.role, picked_at: now
     });
     showToast('Item confirmed picked', 'success');
     await syncPicklistItems(plId);
