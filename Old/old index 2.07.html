@@ -292,12 +292,7 @@ async function atFetchAll(table) {
 async function atCreate(table, fields) {
   var url = atBase() + encodeURIComponent(CONFIG.tables[table]);
   var res = await fetch(url, { method:'POST', headers:atHeaders(), body:JSON.stringify({records:[{fields:fields}]}) });
-  if (!res.ok) {
-    var e = await res.json().catch(function(){return{};});
-    var msg = (e.error&&e.error.message) || JSON.stringify(e) || 'HTTP '+res.status;
-    console.error('atCreate error for table', table, ':', msg, 'fields:', JSON.stringify(fields));
-    throw new Error(msg);
-  }
+  if (!res.ok) { var e = await res.json().catch(function(){return{};}); throw new Error((e.error&&e.error.message)||'HTTP '+res.status); }
   var data = await res.json();
   return data.records[0];
 }
@@ -1102,7 +1097,7 @@ function exportScanLog() {
 }
 
 // ── INIT ──────────────────────────────────────────────────
-setTimeout(hideSplash, 10000);
+setTimeout(hideSplash, 2200);
 render();
 </script>
 </body>
@@ -1429,20 +1424,17 @@ async function savePicklist(status) {
   var now = new Date().toISOString().replace('T',' ').slice(0,19);
   try {
     // Create picklist header
-    // Debug: log what we're sending
-    var plFields = {
+    var rec = await atCreate('picklists', {
       picklist_id:  pl.picklist_id,
       job_name:     pl.job_name,
-      po_number:    pl.po_number||'',
+      po_number:    pl.picklist_id,
       warehouse:    pl.warehouse,
       status:       status,
       created_by:   CONFIG.username||state.role,
       create_at:    new Date().toISOString().slice(0,10),
       assigned_to:  pl.assigned_to||'',
       notes:        pl.notes||''
-    };
-    console.log('Sending to Picklists:', JSON.stringify(plFields));
-    var rec = await atCreate('picklists', plFields);
+    });
     // Create each line item
     for (var i=0; i<pl.items.length; i++) {
       var it = pl.items[i];
