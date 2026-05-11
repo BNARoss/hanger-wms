@@ -683,7 +683,7 @@ function renderInventory() {
         else{sb='OK';sc='badge-green';}
         var qtyColor = item.qty===0?'c-red':item.qty<item.min_qty?'c-gold':'c-green';
         var editBtns = canEdit()
-          ? '<input type="number" min="0" value="'+item.qty+'" style="width:60px;text-align:center;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 2px;color:var(--accent);font-family:DM Mono,monospace;font-size:13px;font-weight:600;outline:none" onblur="qtyInputChange(\''+item.barcode+'\',this.value,'+item.qty+')" onkeydown="if(event.key===\'Enter\'){qtyInputChange(\''+item.barcode+'\',this.value,'+item.qty+');this.blur()}">'
+          ? '<div class="qty-btn" onclick="event.stopPropagation();adjustQty(\''+item.barcode+'\',-1)">\u2212</div><div class="qty-btn" onclick="event.stopPropagation();adjustQty(\''+item.barcode+'\',1)">+</div>'
           : '';
         return '<tr onclick="openDetail(\''+item.barcode+'\')">' +
           '<td class="barcode-cell">'+item.barcode+'</td>' +
@@ -691,7 +691,9 @@ function renderInventory() {
           '<td><span class="badge badge-gray text-xs">'+item.category.substring(0,14)+'</span></td>' +
           '<td class="c-gray text-sm">'+item.vendor+'</td>' +
           '<td><div class="qty-cell" style="justify-content:center" onclick="event.stopPropagation()">'+
-            (canEdit() ? '<input type="number" min="0" value="'+item.qty+'" style="width:60px;text-align:center;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 2px;color:'+qtyColor+';font-family:DM Mono,monospace;font-size:13px;font-weight:600;outline:none" onblur="qtyInputChange(\''+item.barcode+'\',this.value,'+item.qty+')" onkeydown="if(event.key===\'Enter\'){qtyInputChange(\''+item.barcode+'\',this.value,'+item.qty+');this.blur()}">' : '<span class="qty-display '+qtyColor+'">'+item.qty+'</span>')+
+            (canEdit()?'<div class="qty-btn" onclick="adjustQty(\''+item.barcode+'\',-1)">\u2212</div>':'')+
+            '<span class="qty-display '+qtyColor+'">'+item.qty+'</span>'+
+            (canEdit()?'<div class="qty-btn" onclick="adjustQty(\''+item.barcode+'\',1)">+</div>':'')+
           '</div></td>' +
           '<td class="mono c-gray">'+item.min_qty+'</td>' +
           '<td class="mono c-gray">'+item.max_qty+'</td>' +
@@ -847,9 +849,9 @@ function renderDetailPanel() {
     editHtml =
       '<div class="qty-editor">' +
         '<div class="qty-editor-label">Current Quantity</div>' +
-        '<input type="number" min="0" id="detailQtyInput" value="'+item.qty+'" ' +
-        'style="width:80px;text-align:center;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:6px;color:var(--accent);font-family:Bebas Neue,sans-serif;font-size:28px;outline:none" ' +
-        'onblur="adjDetailDirect(this.value)" onkeydown="if(event.key===\'Enter\'){adjDetailDirect(this.value);this.blur()}">' +
+        '<div class="qty-btn" onclick="adjDetail(-1)">\u2212</div>' +
+        '<div class="qty-editor-val" id="detailQty">'+item.qty+'</div>' +
+        '<div class="qty-btn" onclick="adjDetail(1)">+</div>' +
       '</div>' +
       '<div class="minmax-row">' +
         '<div class="minmax-field"><div class="minmax-label">Min</div><input type="number" class="minmax-input" id="minInput" value="'+item.min_qty+'"></div>' +
@@ -1256,7 +1258,6 @@ function renderPicklistBuilder() {
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
       '<div class="btn btn-ghost" onclick="state.buildingPicklist=null;render()">\u2190 Back</div>' +
       '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;letter-spacing:2px">'+(pl.picklist_id||'NEW PICKLIST')+'</div>' +
-      '<div style="margin-left:auto"><label class="btn btn-ghost" style="cursor:pointer;font-size:12px">&#128196; Import XLS<input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importPicklistTemplate(this)"></label></div>' +
     '</div>' +
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
@@ -1762,7 +1763,14 @@ function renderWorkerScan(dir) {
     workerHeader(title, color) +
     workerScanBar('Scan or type barcode\u2026', 'workerDoScan(\''+dir+'\')') +
     (item ? renderFoundItem(item, true) : '') +
-    (item ? workerQtyInput(dir, color) : '') +
+    (item ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+      [1,2,5,10].map(function(n){
+        return '<div onclick="workerAdjQty(\''+dir+'\','+n+')" style="background:'+(dir==='in'?'rgba(34,197,94,0.12)':'rgba(249,115,22,0.12)')+';border:2px solid '+color+';border-radius:12px;padding:18px;text-align:center;cursor:pointer">' +
+          '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:'+color+'">'+(dir==='in'?'+':'-')+n+'</div>' +
+          '<div style="font-size:11px;color:var(--text2)">'+(dir==='in'?'ADD':'REMOVE')+' '+n+'</div>' +
+        '</div>';
+      }).join('') +
+    '</div><div class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:4px" onclick="wState.foundItem=null;wState.scanInput=\'\';render()">Scan Another</div>' : '') +
   '</div>';
 }
 
@@ -1824,8 +1832,16 @@ function renderWorkerOut() {
     // Scan
     workerScanBar('Scan barcode\u2026', 'workerDoScan(\'out\')') +
     (item ? renderFoundItem(item, true) : '') +
-    (item && wState.jobName ? workerQtyInput('out', 'var(--orange)') :
-      (item && !wState.jobName ? '<div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.3);border-radius:8px;padding:12px;font-size:13px;color:var(--orange);text-align:center">'+(wState.jobMode==='picklist'?'Select a picklist above':'Enter a job name above')+'</div>' : '')
+    (item && wState.jobName ?
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+      [1,2,5,10].map(function(n){
+        return '<div onclick="workerAdjQty(\'out\','+n+')" style="background:rgba(249,115,22,0.12);border:2px solid var(--orange);border-radius:12px;padding:18px;text-align:center;cursor:pointer">' +
+          '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--orange)">-'+n+'</div>' +
+          '<div style="font-size:11px;color:var(--text2)">REMOVE '+n+'</div>' +
+        '</div>';
+      }).join('') + '</div>' +
+      '<div class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:4px" onclick="wState.foundItem=null;wState.scanInput=\'\';render()">Scan Another</div>'
+      : (item && !wState.jobName ? '<div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.3);border-radius:8px;padding:12px;font-size:13px;color:var(--orange);text-align:center">'+(wState.jobMode==='picklist'?'Select a picklist above':'Enter a job name above')+'</div>' : '')
     ) +
   '</div>';
 }
@@ -1934,12 +1950,11 @@ function bindSettingsInputs() {
 }
 
 function bindWorkerInputs() {
+  // Auto-focus scan input if present
   setTimeout(function(){
     var el = document.getElementById('wScanInput');
     if (el) el.focus();
-    var btn = document.getElementById('workerConfirmBtn');
-    if (btn) btn.onclick = function(){ workerSubmitQty(btn.getAttribute('data-wdir')); };
-  }, 50);
+  }, 100);
 }
 
 function workerDoScan(dir) {
@@ -2036,157 +2051,3 @@ function workerDoReceive() {
   setTimeout(function(){ var el=document.getElementById('wScanInput'); if(el){el.value='';el.focus();} }, 100);
 }
 </script>
-<script>
-// ── QTY INPUT HELPERS ─────────────────────────────────────
-function qtyInputChange(barcode, newVal, oldQty) {
-  var newQty = parseInt(newVal);
-  if (isNaN(newQty) || newQty < 0) return;
-  if (newQty === oldQty) return;
-  var delta = newQty - oldQty;
-  adjustQty(barcode, delta);
-}
-
-function adjDetailDirect(newVal) {
-  var item = state.detailItem;
-  if (!item) return;
-  var newQty = parseInt(newVal);
-  if (isNaN(newQty) || newQty < 0) return;
-  if (newQty === item.qty) return;
-  var delta = newQty - item.qty;
-  adjustQty(item.barcode, delta);
-  state.detailItem = state.inventory.find(function(i){return i.barcode===item.barcode;});
-}
-
-// ── WORKER QTY INPUT ──────────────────────────────────────
-function workerQtyInput(dir, color) {
-  var item = wState.foundItem;
-  var isZero = item && item.qty === 0 && dir === 'out';
-  return (isZero ?
-    '<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--red);font-weight:600">&#9888; This item shows 0 on hand</div>' : '') +
-  '<div style="background:var(--surface);border:2px solid '+color+';border-radius:14px;padding:20px;margin-bottom:12px;text-align:center">' +
-    '<div style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">'+(dir==='in'?'Qty to Add':'Qty to Remove')+'</div>' +
-    '<input type="number" id="workerQtyField" min="1" value="1" inputmode="numeric" ' +
-    'style="width:120px;text-align:center;background:var(--surface2);border:2px solid '+color+';border-radius:10px;padding:10px;color:'+color+';font-family:Bebas Neue,sans-serif;font-size:42px;outline:none;display:block;margin:0 auto 16px">' +
-    '<div class="btn btn-primary" id="workerConfirmBtn" data-wdir="'+dir+'" style="width:100%;justify-content:center;font-size:16px;padding:14px;background:'+color+'">&#10003; Confirm '+(dir==='in'?'IN':'OUT')+'</div>' +
-  '</div>' +
-  '<div class="btn btn-ghost" style="width:100%;justify-content:center" onclick="wState.foundItem=null;wState.scanInput=\'\';render()">Scan Another</div>';
-}
-
-function workerSubmitQty(dir) {
-  var el = document.getElementById('workerQtyField');
-  var qty = parseInt(el ? el.value : 1);
-  if (isNaN(qty) || qty < 1) { showToast('Enter a valid quantity', 'error'); return; }
-  var item = wState.foundItem;
-  if (!item) return;
-  // Zero qty warning for OUT
-  if (dir === 'out' && item.qty === 0) {
-    if (!confirm('Warning: ' + item.description + ' shows 0 on hand. Proceed anyway?')) return;
-  }
-  // Low qty warning for OUT
-  if (dir === 'out' && item.qty > 0 && qty > item.qty) {
-    if (!confirm('Warning: Removing ' + qty + ' but only ' + item.qty + ' on hand. Proceed anyway?')) return;
-  }
-  workerAdjQty(dir, qty);
-}
-
-// ── ZERO QTY WARNING IN PICKLIST BUILDER ─────────────────
-var _origPlAddItem = plAddItem;
-plAddItem = function(barcode) {
-  var item = state.inventory.find(function(i){return i.barcode===barcode;});
-  if (item && item.qty === 0) {
-    showToast('Warning: ' + item.description.substring(0,30) + ' has 0 on hand', 'error');
-  }
-  _origPlAddItem(barcode);
-};
-</script>
-<script>
-// ── PICKLIST TEMPLATE IMPORT ──────────────────────────────
-// Reads Stockzure template: Product Barcode | Shelf Barcode | Qty
-
-function importPicklistTemplate(input) {
-  var file = input.files[0];
-  if (!file) return;
-
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = new Uint8Array(e.target.result);
-      var workbook = XLSX.read(data, { type: 'array' });
-      var sheet = workbook.Sheets[workbook.SheetNames[0]];
-      var rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-      if (rows.length === 0) { showToast('No data found in file', 'error'); return; }
-
-      var added = 0, notFound = 0, notFoundList = [];
-
-      rows.forEach(function(row) {
-        // Support both exact Stockzure header and common variations
-        var barcode = (
-          row['Product Barcode (Compulsory)'] ||
-          row['Product Barcode'] ||
-          row['barcode'] ||
-          row['Barcode'] ||
-          ''
-        ).toString().trim().toUpperCase();
-
-        var qty = parseInt(
-          row['Qty (Compulsory)'] ||
-          row['Qty'] ||
-          row['qty'] ||
-          row['Quantity'] ||
-          1
-        ) || 1;
-
-        if (!barcode) return;
-
-        var item = state.inventory.find(function(i) {
-          return i.barcode.toUpperCase() === barcode;
-        });
-
-        if (!item) {
-          notFound++;
-          notFoundList.push(barcode);
-          return;
-        }
-
-        // Add or update qty in picklist
-        var pl = state.buildingPicklist;
-        var existing = pl.items.find(function(i) { return i.barcode === item.barcode; });
-        if (existing) {
-          existing.qty_requested += qty;
-        } else {
-          pl.items.push({
-            barcode: item.barcode,
-            description: item.description,
-            qty_requested: qty,
-            qty_picked: 0,
-            status: 'Pending'
-          });
-          added++;
-        }
-
-        // Zero qty warning
-        if (item.qty === 0) {
-          showToast(item.description.substring(0,28) + ' has 0 on hand', 'error');
-        }
-      });
-
-      if (notFound > 0) {
-        console.warn('Barcodes not found in catalog:', notFoundList.join(', '));
-        showToast(added + ' items added. ' + notFound + ' barcode(s) not found \u2014 check console', 'info');
-      } else {
-        showToast(added + ' items imported from template', 'success');
-      }
-
-      render();
-    } catch(err) {
-      showToast('Import failed: ' + err.message, 'error');
-      console.error('Import error:', err);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-</script>
-
-<!-- SheetJS for XLSX parsing -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
