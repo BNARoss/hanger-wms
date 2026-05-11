@@ -269,11 +269,7 @@ let state = {
 
 // ── AIRTABLE API ──────────────────────────────────────────
 function isMobileWorker() {
-  // field_worker always gets stripped UI regardless of screen size
-  if (state.role === 'field_worker') return true;
-  // wh_worker gets stripped UI on mobile
-  if (state.role === 'wh_worker') return true;
-  return false;
+  return state.role === 'field_worker' || (state.role === 'wh_worker' && window.innerWidth <= 768);
 }
 
 function isConfigured() {
