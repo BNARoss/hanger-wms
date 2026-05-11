@@ -1774,33 +1774,6 @@ function renderWorkerScan(dir) {
   '</div>';
 }
 
-// ── PICKLIST ITEM PREVIEW ────────────────────────────────
-function workerPicklistItems() {
-  if (!wState.jobName) return '';
-  var items = state.picklistItems.filter(function(i){ return i.picklist_id === wState.jobName; });
-  if (items.length === 0) return '<div style="font-size:12px;color:var(--text2);padding:10px 0">No items loaded yet — sync may be needed</div>';
-  return '<div style="margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
-    '<div style="padding:10px 14px;background:var(--surface2);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px">Items on this picklist ('+items.length+')</div>' +
-    items.map(function(it) {
-      var picked = it.status === 'Picked';
-      var inv = state.inventory.find(function(i){ return i.barcode === it.barcode; });
-      var onHand = inv ? inv.qty : '?';
-      var hc = picked ? 'var(--text3)' : 'var(--text)';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);opacity:'+(picked?'0.5':'1')+'">' +
-        '<div style="flex:1;min-width:0">' +
-          '<div style="font-size:13px;font-weight:600;color:'+hc+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(picked?'&#10003; ':'')+it.description+'</div>' +
-          '<div style="font-size:11px;color:var(--text2);font-family:DM Mono,monospace">'+it.barcode+'</div>' +
-        '</div>' +
-        '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-          '<div style="font-size:11px;color:var(--text2)">Need</div>' +
-          '<div style="font-family:Bebas Neue,sans-serif;font-size:20px;color:'+(picked?'var(--green)':'var(--accent)')+'">'+it.qty_requested+'</div>' +
-          '<div style="font-size:10px;color:var(--text3)">stock: '+onHand+'</div>' +
-        '</div>' +
-      '</div>';
-    }).join('') +
-  '</div>';
-}
-
 // ── STOCK OUT WITH JOB ────────────────────────────────────
 function renderWorkerOut() {
   var item = wState.foundItem;
@@ -1817,11 +1790,10 @@ function renderWorkerOut() {
       '<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Active Picklist</div>' +
       (picklists.length===0 ?
         '<div style="color:var(--text2);font-size:13px;padding:12px;background:var(--surface);border-radius:8px">No active picklists — use Job Name mode</div>' :
-        '<select onchange="wState.jobName=this.value;render()" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:DM Sans,sans-serif;font-size:14px;padding:12px;border-radius:8px;outline:none">' +
+        '<select onchange="wState.jobName=this.value" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:DM Sans,sans-serif;font-size:14px;padding:12px;border-radius:8px;outline:none">' +
         '<option value="">Select picklist\u2026</option>' +
         picklists.map(function(p){ return '<option value="'+p.picklist_id+'" '+(wState.jobName===p.picklist_id?'selected':'')+'>'+p.picklist_id+' \u2014 '+p.job_name+'</option>'; }).join('') +
-        '</select>' +
-        workerPicklistItems()) +
+        '</select>') +
       '</div>'
       :
       '<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Job Name / Number</div>' +
