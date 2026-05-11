@@ -1091,11 +1091,6 @@ render();
 // ═══════════════════════════════════════
 
 // ── AIRTABLE PICKLIST / BARCODE SYNC ──
-
-function handleEnterKey(event, fn) {
-  if (event.key === 'Enter') fn();
-}
-
 async function syncPicklists() {
   if (!isConfigured()) return;
   try {
@@ -1172,7 +1167,7 @@ function renderPicklists() {
       (canBuildPicklist() ? '<div class="btn btn-primary" onclick="startNewPicklist()">'+I.plus+' New Picklist</div>' : '') +
     '</div></div>' +
   '<div class="filters">'+filterBtns+
-    '<input type="text" class="filter-select" placeholder="Search job or ID\u2026" style="width:200px;border-radius:20px;padding:5px 12px" onblur="state.plSearch=this.value;render()" onkeydown="handleEnterKey(event,function(){state.plSearch=this.value;render()})" value="'+(state.plSearch||'')+'">'+
+    '<input type="text" class="filter-select" placeholder="Search job or ID\u2026" style="width:200px;border-radius:20px;padding:5px 12px" oninput="state.plSearch=this.value;render()" value="'+(state.plSearch||'')+'">'+
   '</div>' +
   '<div class="table-wrap"><div class="table-scroll"><table>' +
     '<thead><tr><th>Picklist ID</th><th>Job Name</th><th>Warehouse</th><th>Status</th><th>Progress</th><th>Created By</th></tr></thead>' +
@@ -1220,22 +1215,20 @@ function renderPicklistBuilder() {
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
-        '<div class="field-group"><div class="field-label">Job Name</div>' +
-          '<input class="field-input" id="plJobName" placeholder="e.g. Smith Residence" value="'+(pl.job_name||'')+'" onblur="state.buildingPicklist.job_name=this.value"></div>' +
         '<div class="field-group"><div class="field-label">Picklist ID / PO Number</div>' +
-          '<input class="field-input mono" id="plId" value="'+(pl.picklist_id||'')+'" style="color:var(--accent)" placeholder="e.g. Smith-2240001" onblur="state.buildingPicklist.picklist_id=this.value"></div>' +
+          '<input class="field-input mono" id="plId" value="'+(pl.picklist_id||'')+'" style="color:var(--accent)" placeholder="e.g. Smith-2240001" oninput="state.buildingPicklist.picklist_id=this.value"></div>' +
         '<div class="field-group"><div class="field-label">Warehouse</div>' +
           '<select class="field-input" id="plWh" onchange="state.buildingPicklist.warehouse=this.value">' +
             ['Chattanooga','Nashville','Knoxville'].map(function(w){ return '<option'+(pl.warehouse===w?' selected':'')+'>'+w+'</option>'; }).join('') +
           '</select></div>' +
         '<div class="field-group"><div class="field-label">Notes</div>' +
-          '<input class="field-input" id="plNotes" value="'+(pl.notes||'')+'" onblur="state.buildingPicklist.notes=this.value"></div>' +
+          '<input class="field-input" id="plNotes" value="'+(pl.notes||'')+'" oninput="state.buildingPicklist.notes=this.value"></div>' +
       '</div>' +
     '</div>' +
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
       '<div class="field-label" style="margin-bottom:8px">Add Items</div>' +
-      '<input class="field-input" id="plItemSearch" placeholder="Search SKU or barcode\u2026" style="margin-bottom:8px" value="'+(pl.itemSearch||'')+'" onblur="state.buildingPicklist.itemSearch=this.value;render()" onkeydown="handleEnterKey(event,function(){state.buildingPicklist.itemSearch=this.value;render()})">' +
+      '<input class="field-input" placeholder="Search SKU or barcode\u2026" style="margin-bottom:8px" oninput="state.buildingPicklist.itemSearch=this.value;render()" value="'+(pl.itemSearch||'')+'">' +
       (results.length > 0 ? '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px">'+searchResults+'</div>' : '') +
     '</div>' +
 
@@ -1325,14 +1318,14 @@ function renderBarcodes() {
       '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
         '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:16px;color:var(--accent)">GENERATE BARCODE</div>' +
         '<div class="field-group"><div class="field-label">Prefix (e.g. CS-SHLF)</div>' +
-          '<input class="field-input" id="bcPrefixInput" placeholder="CS-SHLF" value="'+state.bcPrefix+'" onblur="state.bcPrefix=this.value.toUpperCase();render()" onkeydown="handleEnterKey(event,function(){state.bcPrefix=this.value.toUpperCase();render()})"></div>' +
+          '<input class="field-input" id="bcPrefixInput" placeholder="CS-SHLF" value="'+state.bcPrefix+'" onblur="state.bcPrefix=this.value.toUpperCase();render()" onkeydown="if(event.key===\'Enter\'){state.bcPrefix=this.value.toUpperCase();render()}"></div>' +
         (suggestions.length ? '<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">' +
           suggestions.map(function(s){ return '<div class="filter-chip" onclick="document.getElementById(\'bcManual\').value=\''+s+'\';state.bcBarcode=\''+s+'\';" style="font-family:\'DM Mono\',monospace;font-size:11px">'+s+'</div>'; }).join('') +
         '</div>' : '') +
         '<div class="field-group"><div class="field-label">Barcode (manual or pick suggestion)</div>' +
           '<input class="field-input mono" id="bcManual" placeholder="CS-SHLF-001" oninput="state.bcBarcode=this.value" value="'+(state.bcBarcode||'')+'"></div>' +
         '<div class="field-group"><div class="field-label">Description</div>' +
-          '<input class="field-input" id="bcDescInput" placeholder="Item description" value="'+state.bcDesc+'" onblur="state.bcDesc=this.value" onkeydown="handleEnterKey(event,function(){state.bcDesc=this.value})"></div>' +
+          '<input class="field-input" id="bcDescInput" placeholder="Item description" value="'+state.bcDesc+'" onblur="state.bcDesc=this.value" onkeydown="if(event.key===\'Enter\'){state.bcDesc=this.value}"></div>' +
         '<div class="field-group"><div class="field-label">Category</div>' +
           '<select class="field-input" onchange="state.bcCat=this.value">' +
             ['','VALVES/KITS/HANDHELDS','SEATS/BARS/SHELVES/ROD','SUPPLIES/ACCESSORIES','Bath/Shower','UNCATEGORIZED'].map(function(c){ return '<option'+(state.bcCat===c?' selected':'')+'>'+c+'</option>'; }).join('') +
@@ -1387,14 +1380,7 @@ function plRemoveItem(idx) {
 
 async function savePicklist(status) {
   var pl = state.buildingPicklist;
-  // Read directly from DOM in case user hasn't blurred the fields yet
-  var jobEl = document.getElementById('plJobName');
-  var idEl  = document.getElementById('plId');
-  var notEl = document.getElementById('plNotes');
-  if (jobEl && jobEl.value.trim()) pl.job_name    = jobEl.value.trim();
-  if (idEl  && idEl.value.trim())  pl.picklist_id = idEl.value.trim();
-  if (notEl && notEl.value)        pl.notes       = notEl.value;
-  if (!pl.job_name || !pl.picklist_id) { showToast('Job name and Picklist ID are required', 'error'); return; }
+  if (!pl.job_name || !pl.picklist_id) { showToast('Job name and ID required', 'error'); return; }
   if (pl.items.length === 0) { showToast('Add at least one item', 'error'); return; }
   var now = new Date().toISOString().replace('T',' ').slice(0,19);
   try {
