@@ -454,7 +454,7 @@ function hideSplash() {
 function render() {
   var app = document.getElementById('app');
   if (!state.loggedIn) { app.innerHTML = renderLogin(); bindLogin(); return; }
-  app.innerHTML = renderShell(); bindMain(); if(window.innerWidth<=768)renderMobileNav();
+  app.innerHTML = renderShell(); bindMain();
 }
 
 function renderSyncPill() {
@@ -1547,34 +1547,7 @@ function copyBarcode(bc) {
   document.head.appendChild(m3);
   // Mobile CSS overrides
   var style = document.createElement('style');
-  style.textContent = '@media(max-width:768px){' +
-    '.shell{flex-direction:column;height:auto;min-height:100vh;}' +
-    '.sidebar{position:fixed;z-index:60;height:100vh;top:0;left:0;transform:translateX(-100%);transition:transform 0.25s;width:260px!important;min-width:260px!important;}' +
-    '.sidebar.mobile-open{transform:translateX(0);}' +
-    '.main{width:100vw;min-height:100vh;overflow-x:hidden;}' +
-    '.topbar{padding:0 12px;gap:8px;height:52px;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,0.3);}' +
-    '.topbar-title{font-size:15px;font-weight:700;}' +
-    '.topbar-search{display:none;}' +
-    '.sync-pill{font-size:10px;padding:3px 8px;}' +
-    '.topbar-btn{width:30px;height:30px;}' +
-    '.content{padding:12px;overflow-x:hidden;}' +
-    '.stats-row{grid-template-columns:1fr 1fr;gap:10px;}' +
-    '.stat-value{font-size:26px;}' +
-    'table{font-size:12px;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}' +
-    'td,th{padding:8px 10px;white-space:nowrap;}' +
-    '.table-wrap{overflow-x:auto;}' +
-    '.section-header{flex-wrap:wrap;gap:8px;}' +
-    '.section-actions{margin-left:0;width:100%;display:flex;gap:6px;}' +
-    '.filters{gap:6px;}' +
-    '.filter-chip{font-size:11px;padding:4px 10px;}' +
-    '.detail-panel{width:100vw;left:0;}' +
-    '.modal{width:95vw;max-height:90vh;overflow-y:auto;}' +
-    '.scan-actions{grid-template-columns:1fr 1fr;}' +
-    '.btn{font-size:12px;padding:7px 12px;}' +
-    '.qty-btn{width:28px;height:28px;}' +
-    '.login-box{width:95vw;max-width:400px;}' +
-    '.splash-logo{width:220px;}' +
-  '}';
+  style.textContent = '@media(max-width:768px){.sidebar{position:fixed;z-index:60;height:100vh;transform:translateX(-100%);transition:transform 0.25s}.sidebar.mobile-open{transform:translateX(0)}.sidebar:not(.mobile-open){width:0;min-width:0}.topbar{padding:0 12px;gap:10px}.topbar-search{display:none}.content{padding:16px}.stats-row{grid-template-columns:1fr 1fr}.detail-panel{width:100vw}.modal{width:95vw}.scan-actions{grid-template-columns:1fr 1fr}.topbar-title{font-size:16px}table{font-size:12px}td,th{padding:8px 10px}.section-header{flex-wrap:wrap}.section-actions{margin-left:0;width:100%}}';
   document.head.appendChild(style);
 })();
 
@@ -1594,34 +1567,6 @@ bindMain = function() {
     });
   }
 };
-
-// ── MOBILE BOTTOM NAV ─────────────────────────────────────
-function renderMobileNav() {
-  if (window.innerWidth > 768) return;
-  var existing = document.getElementById('mobileNav');
-  if (existing) existing.remove();
-  var nav = document.createElement('div');
-  nav.id = 'mobileNav';
-  nav.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding:8px 0;z-index:50;';
-  var items = [
-    {page:'dashboard', icon:'&#9783;', label:'Home'},
-    {page:'inventory', icon:'&#9744;', label:'Stock'},
-    {page:'scan',      icon:'&#9635;', label:'Scan'},
-    {page:'picklists', icon:'&#9776;', label:'Lists'},
-    {page:'barcodes',  icon:'#',       label:'Codes'}
-  ];
-  nav.innerHTML = items.map(function(it) {
-    var active = state.page === it.page;
-    return '<div onclick="setPage(''+it.page+'')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;cursor:pointer;color:'+(active?'var(--accent)':'var(--text2)')+';">' +
-      '<span style="font-size:18px">'+it.icon+'</span>' +
-      '<span style="font-size:10px;font-weight:600">'+it.label+'</span>' +
-    '</div>';
-  }).join('');
-  document.body.appendChild(nav);
-  // Add bottom padding to content so nav doesn't cover it
-  var content = document.getElementById('mainContent');
-  if (content) content.style.paddingBottom = '70px';
-}
 
 // ── PATCH syncInventory TO ALSO SYNC PICKLISTS/BARCODES ─
 var _origSync = syncInventory;
