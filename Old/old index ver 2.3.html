@@ -1980,36 +1980,8 @@ function workerAdjQty(dir, qty) {
   if (dir==='out' && wState.jobName) item.assigned_job = wState.jobName;
   adjustQty(item.barcode, delta);
   wState.foundItem = state.inventory.find(function(i){return i.barcode===item.barcode;});
-  // If OUT against a picklist, mark that picklist item as Picked
-  if (dir==='out' && wState.jobName && wState.jobMode==='picklist') {
-    workerMarkPicked(item.barcode, qty);
-  }
   render();
   setTimeout(function(){ var el=document.getElementById('wScanInput'); if(el){el.focus();el.select();} }, 100);
-}
-
-async function workerMarkPicked(barcode, qtyPicked) {
-  var plItem = state.picklistItems.find(function(i){
-    return i.picklist_id===wState.jobName && i.barcode===barcode;
-  });
-  if (!plItem || !plItem._atId) return;
-  var now = new Date().toISOString().replace('T',' ').slice(0,19);
-  try {
-    await atUpdate('picklistItems', plItem._atId, {
-      qty_picked: qtyPicked,
-      status:     'Picked',
-      picked_by:  CONFIG.username||state.role,
-      picked_at:  now
-    });
-    // Update local state so UI reflects immediately
-    plItem.qty_picked = qtyPicked;
-    plItem.status = 'Picked';
-    plItem.picked_by = CONFIG.username||state.role;
-    plItem.picked_at = now;
-    render();
-  } catch(e) {
-    showToast('Pick log failed: '+e.message, 'error');
-  }
 }
 
 function workerDoCount() {
