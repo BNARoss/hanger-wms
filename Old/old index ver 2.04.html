@@ -1093,7 +1093,7 @@ render();
 // ── AIRTABLE PICKLIST / BARCODE SYNC ──
 
 function handleEnterKey(event, fn) {
-  if (event.key === 'Enter') { event.preventDefault(); setTimeout(fn, 0); }
+  if (event.key === 'Enter') fn();
 }
 
 async function syncPicklists() {
@@ -1172,7 +1172,7 @@ function renderPicklists() {
       (canBuildPicklist() ? '<div class="btn btn-primary" onclick="startNewPicklist()">'+I.plus+' New Picklist</div>' : '') +
     '</div></div>' +
   '<div class="filters">'+filterBtns+
-    '<input type="text" class="filter-select" placeholder="Search job or ID\u2026" style="width:200px;border-radius:20px;padding:5px 12px" onblur="state.plSearch=this.value;setTimeout(render,0)" onkeydown="handleEnterKey(event,function(){state.plSearch=this.value;render()})" value="'+(state.plSearch||'')+'">'+
+    '<input type="text" class="filter-select" placeholder="Search job or ID\u2026" style="width:200px;border-radius:20px;padding:5px 12px" onblur="state.plSearch=this.value;render()" onkeydown="handleEnterKey(event,function(){state.plSearch=this.value;render()})" value="'+(state.plSearch||'')+'">'+
   '</div>' +
   '<div class="table-wrap"><div class="table-scroll"><table>' +
     '<thead><tr><th>Picklist ID</th><th>Job Name</th><th>Warehouse</th><th>Status</th><th>Progress</th><th>Created By</th></tr></thead>' +
@@ -1228,10 +1228,6 @@ function renderPicklistBuilder() {
           '<select class="field-input" id="plWh" onchange="state.buildingPicklist.warehouse=this.value">' +
             ['Chattanooga','Nashville','Knoxville'].map(function(w){ return '<option'+(pl.warehouse===w?' selected':'')+'>'+w+'</option>'; }).join('') +
           '</select></div>' +
-        '<div class="field-group"><div class="field-label">PO Number</div>' +
-          '<input class="field-input" id="plPoNumber" placeholder="e.g. PO-2240001" value="'+(pl.po_number||'')+'" onblur="state.buildingPicklist.po_number=this.value"></div>' +
-        '<div class="field-group"><div class="field-label">Assign To</div>' +
-          '<input class="field-input" id="plAssignedTo" placeholder="Warehouse worker name" value="'+(pl.assigned_to||'')+'" onblur="state.buildingPicklist.assigned_to=this.value"></div>' +
         '<div class="field-group"><div class="field-label">Notes</div>' +
           '<input class="field-input" id="plNotes" value="'+(pl.notes||'')+'" onblur="state.buildingPicklist.notes=this.value"></div>' +
       '</div>' +
@@ -1239,7 +1235,7 @@ function renderPicklistBuilder() {
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
       '<div class="field-label" style="margin-bottom:8px">Add Items</div>' +
-      '<input class="field-input" id="plItemSearch" placeholder="Search SKU or barcode\u2026" style="margin-bottom:8px" value="'+(pl.itemSearch||'')+'" onblur="state.buildingPicklist.itemSearch=this.value;setTimeout(render,0)" onkeydown="handleEnterKey(event,function(){state.buildingPicklist.itemSearch=this.value;render()})">' +
+      '<input class="field-input" id="plItemSearch" placeholder="Search SKU or barcode\u2026" style="margin-bottom:8px" value="'+(pl.itemSearch||'')+'" onblur="state.buildingPicklist.itemSearch=this.value;render()" onkeydown="handleEnterKey(event,function(){state.buildingPicklist.itemSearch=this.value;render()})">' +
       (results.length > 0 ? '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px">'+searchResults+'</div>' : '') +
     '</div>' +
 
@@ -1329,7 +1325,7 @@ function renderBarcodes() {
       '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
         '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:16px;color:var(--accent)">GENERATE BARCODE</div>' +
         '<div class="field-group"><div class="field-label">Prefix (e.g. CS-SHLF)</div>' +
-          '<input class="field-input" id="bcPrefixInput" placeholder="CS-SHLF" value="'+state.bcPrefix+'" onblur="var v=this.value.toUpperCase();state.bcPrefix=v;setTimeout(render,0)" onkeydown="handleEnterKey(event,function(){state.bcPrefix=this.value.toUpperCase();render()})"></div>' +
+          '<input class="field-input" id="bcPrefixInput" placeholder="CS-SHLF" value="'+state.bcPrefix+'" onblur="state.bcPrefix=this.value.toUpperCase();render()" onkeydown="handleEnterKey(event,function(){state.bcPrefix=this.value.toUpperCase();render()})"></div>' +
         (suggestions.length ? '<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">' +
           suggestions.map(function(s){ return '<div class="filter-chip" onclick="document.getElementById(\'bcManual\').value=\''+s+'\';state.bcBarcode=\''+s+'\';" style="font-family:\'DM Mono\',monospace;font-size:11px">'+s+'</div>'; }).join('') +
         '</div>' : '') +
@@ -1395,28 +1391,18 @@ async function savePicklist(status) {
   var jobEl = document.getElementById('plJobName');
   var idEl  = document.getElementById('plId');
   var notEl = document.getElementById('plNotes');
-  var poEl  = document.getElementById('plPoNumber');
-  var atEl  = document.getElementById('plAssignedTo');
   if (jobEl && jobEl.value.trim()) pl.job_name    = jobEl.value.trim();
   if (idEl  && idEl.value.trim())  pl.picklist_id = idEl.value.trim();
   if (notEl && notEl.value)        pl.notes       = notEl.value;
-  if (poEl  && poEl.value)         pl.po_number   = poEl.value.trim();
-  if (atEl  && atEl.value)         pl.assigned_to = atEl.value.trim();
   if (!pl.job_name || !pl.picklist_id) { showToast('Job name and Picklist ID are required', 'error'); return; }
   if (pl.items.length === 0) { showToast('Add at least one item', 'error'); return; }
   var now = new Date().toISOString().replace('T',' ').slice(0,19);
   try {
     // Create picklist header
     var rec = await atCreate('picklists', {
-      picklist_id:  pl.picklist_id,
-      job_name:     pl.job_name,
-      po_number:    pl.picklist_id,
-      warehouse:    pl.warehouse,
-      status:       status,
-      created_by:   CONFIG.username||state.role,
-      create_at:    now,
-      assigned_to:  pl.assigned_to||'',
-      notes:        pl.notes||''
+      picklist_id: pl.picklist_id, job_name: pl.job_name,
+      warehouse: pl.warehouse, status: status,
+      created_by: CONFIG.username||state.role, created_at: now, notes: pl.notes||''
     });
     // Create each line item
     for (var i=0; i<pl.items.length; i++) {
