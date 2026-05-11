@@ -1121,7 +1121,13 @@ function plStatusBadge(s) {
   return '<span class="badge '+(map[s]||'badge-gray')+'">'+s+'</span>';
 }
 
-// Picklist ID is manual — entered by PM/Ops
+function generatePlId(jobName) {
+  var last = (jobName||'').trim().split(' ').pop().replace(/[^a-zA-Z0-9]/g,'');
+  var existing = state.picklists.filter(function(p){ return p.picklist_id && p.picklist_id.startsWith(last+'-'); });
+  var nums = existing.map(function(p){ return parseInt((p.picklist_id||'').split('-').pop())||0; });
+  var next = nums.length ? Math.max.apply(null,nums)+1 : 1;
+  return last + '-' + String(next).padStart(7,'0');
+}
 
 function canBuildPicklist() {
   return ['ops_manager','project_manager','wh_manager','wh_worker'].indexOf(state.role) >= 0;
@@ -1215,8 +1221,10 @@ function renderPicklistBuilder() {
 
     '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
-        '<div class="field-group"><div class="field-label">Picklist ID / PO Number</div>' +
-          '<input class="field-input mono" id="plId" value="'+(pl.picklist_id||'')+'" style="color:var(--accent)" placeholder="e.g. Smith-2240001" oninput="state.buildingPicklist.picklist_id=this.value"></div>' +
+        '<div class="field-group"><div class="field-label">Job Name (Last Name)</div>' +
+          '<input class="field-input" id="plJobName" placeholder="e.g. Smith Residence" value="'+(pl.job_name||'')+'" oninput="state.buildingPicklist.job_name=this.value;updatePlId()"></div>' +
+        '<div class="field-group"><div class="field-label">Picklist ID (auto)</div>' +
+          '<input class="field-input mono" id="plId" value="'+(pl.picklist_id||'')+'" style="color:var(--accent)" oninput="state.buildingPicklist.picklist_id=this.value"></div>' +
         '<div class="field-group"><div class="field-label">Warehouse</div>' +
           '<select class="field-input" id="plWh" onchange="state.buildingPicklist.warehouse=this.value">' +
             ['Chattanooga','Nashville','Knoxville'].map(function(w){ return '<option'+(pl.warehouse===w?' selected':'')+'>'+w+'</option>'; }).join('') +
@@ -1318,20 +1326,20 @@ function renderBarcodes() {
       '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px;margin-bottom:16px">' +
         '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:2px;margin-bottom:16px;color:var(--accent)">GENERATE BARCODE</div>' +
         '<div class="field-group"><div class="field-label">Prefix (e.g. CS-SHLF)</div>' +
-          '<input class="field-input" id="bcPrefixInput" placeholder="CS-SHLF" value="'+state.bcPrefix+'" onblur="state.bcPrefix=this.value.toUpperCase();render()" onkeydown="if(event.key===\'Enter\'){state.bcPrefix=this.value.toUpperCase();render()}"></div>' +
+          '<input class="field-input" placeholder="CS-SHLF" oninput="state.bcPrefix=this.value.toUpperCase();render()" value="'+state.bcPrefix+'"></div>' +
         (suggestions.length ? '<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">' +
-          suggestions.map(function(s){ return '<div class="filter-chip" onclick="document.getElementById(\'bcManual\').value=\''+s+'\';state.bcBarcode=\''+s+'\';" style="font-family:\'DM Mono\',monospace;font-size:11px">'+s+'</div>'; }).join('') +
+          suggestions.map(function(s){ return '<div class="filter-chip" onclick="state.bcPrefix=s;document.getElementById(\'bcManual\').value=\''+s+'\';state.bcBarcode=\''+s+'\';render()" style="font-family:\'DM Mono\',monospace;font-size:11px">'+s+'</div>'; }).join('') +
         '</div>' : '') +
         '<div class="field-group"><div class="field-label">Barcode (manual or pick suggestion)</div>' +
           '<input class="field-input mono" id="bcManual" placeholder="CS-SHLF-001" oninput="state.bcBarcode=this.value" value="'+(state.bcBarcode||'')+'"></div>' +
         '<div class="field-group"><div class="field-label">Description</div>' +
-          '<input class="field-input" id="bcDescInput" placeholder="Item description" value="'+state.bcDesc+'" onblur="state.bcDesc=this.value" onkeydown="if(event.key===\'Enter\'){state.bcDesc=this.value}"></div>' +
+          '<input class="field-input" placeholder="Item description" oninput="state.bcDesc=this.value" value="'+state.bcDesc+'"></div>' +
         '<div class="field-group"><div class="field-label">Category</div>' +
           '<select class="field-input" onchange="state.bcCat=this.value">' +
             ['','VALVES/KITS/HANDHELDS','SEATS/BARS/SHELVES/ROD','SUPPLIES/ACCESSORIES','Bath/Shower','UNCATEGORIZED'].map(function(c){ return '<option'+(state.bcCat===c?' selected':'')+'>'+c+'</option>'; }).join('') +
           '</select></div>' +
         '<div class="field-group"><div class="field-label">Notes</div>' +
-          '<input class="field-input" id="bcNotesInput" placeholder="Optional notes" value="'+state.bcNotes+'" onblur="state.bcNotes=this.value"></div>' +
+          '<input class="field-input" placeholder="Optional notes" oninput="state.bcNotes=this.value" value="'+state.bcNotes+'"></div>' +
         '<div class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveBarcode()">'+I.barcode+' Save Barcode</div>' +
       '</div>' +
     '</div>' +
@@ -1354,7 +1362,14 @@ function startNewPicklist() {
   render();
 }
 
-// updatePlId removed — ID is manual entry
+function updatePlId() {
+  var jn = state.buildingPicklist.job_name;
+  if (jn && jn.trim()) {
+    state.buildingPicklist.picklist_id = generatePlId(jn);
+    var el = document.getElementById('plId');
+    if (el) el.value = state.buildingPicklist.picklist_id;
+  }
+}
 
 function plAddItem(barcode) {
   var item = state.inventory.find(function(i){return i.barcode===barcode;});
