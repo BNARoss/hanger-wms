@@ -1295,7 +1295,7 @@ function renderPicklistDetail(plId) {
       '<td class="barcode-cell">'+item.barcode+'</td>' +
       '<td>'+item.description+'</td>' +
       '<td class="mono" style="text-align:center">'+item.qty_requested+'</td>' +
-      '<td class="mono '+(item.status==='Picked'?'c-green':'c-gray')+'" style="text-align:center">'+(item.qty_picked||0)+'</td>' +
+      '<td class="mono c-green" style="text-align:center">'+(item.qty_picked||0)+'</td>' +
       '<td style="text-align:center">' +
         (picked
           ? '<span class="badge badge-green">'+I.check+' Picked</span>'
@@ -1451,14 +1451,8 @@ async function savePicklist(status) {
     for (var i=0; i<pl.items.length; i++) {
       var it = pl.items[i];
       await atCreate('picklistItems', {
-        picklist_id:  pl.picklist_id,
         barcode:      it.barcode,
-        description:  it.description,
-        qty_requested: it.qty_requested,
-        qty_picked:   0,
-        status:       'Pending',
-        picked_by:    '',
-        picked_at:    ''
+        description:  it.description
       });
     }
     showToast('Picklist '+pl.picklist_id+' saved', 'success');
@@ -1473,10 +1467,7 @@ async function pickItem(plId, itemAtId, qtyRequested) {
   var now = new Date().toISOString().replace('T',' ').slice(0,19);
   try {
     await atUpdate('picklistItems', itemAtId, {
-      qty_picked: qtyRequested,
-      status:     'Picked',
-      picked_by:  CONFIG.username||state.role,
-      picked_at:  now
+      notes: 'Picked by ' + (CONFIG.username||state.role) + ' at ' + now
     });
     showToast('Item confirmed picked', 'success');
     await syncPicklistItems(plId);
