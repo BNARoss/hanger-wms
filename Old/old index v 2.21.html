@@ -463,12 +463,6 @@ function hideSplash() {
 function render() {
   var app = document.getElementById('app');
   if (!state.loggedIn) { app.innerHTML = renderLogin(); bindLogin(); return; }
-  // Worker roles skip the full shell entirely
-  if (isMobileWorker()) {
-    app.innerHTML = renderWorkerApp();
-    bindWorkerInputs();
-    return;
-  }
   app.innerHTML = renderShell(); bindMain(); if(window.innerWidth<=768)renderMobileNav();
 }
 
@@ -1888,14 +1882,6 @@ function renderWorkerReceive() {
 }
 
 // ── WORKER ACTIONS ────────────────────────────────────────
-function bindWorkerInputs() {
-  // Auto-focus scan input if present
-  setTimeout(function(){
-    var el = document.getElementById('wScanInput');
-    if (el) el.focus();
-  }, 100);
-}
-
 function workerDoScan(dir) {
   var code = (document.getElementById('wScanInput')||{}).value || wState.scanInput;
   if (!code || code.trim().length < 2) return;
