@@ -1431,7 +1431,7 @@ async function savePicklist(status) {
       warehouse:    pl.warehouse,
       status:       status,
       created_by:   CONFIG.username||state.role,
-      create_at:    new Date().toISOString().slice(0,10),
+      create_at:    now,
       assigned_to:  pl.assigned_to||'',
       notes:        pl.notes||''
     });
